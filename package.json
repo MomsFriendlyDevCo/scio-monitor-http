@@ -1,0 +1,21 @@
+{
+  "name": "scio-monitor-http",
+  "version": "1.0.0",
+  "description": "HTTP(s) monitor for Scio",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MomsFriendlyDevCo/scio-monitor-http"
+  },
+  "keywords": [
+    "http",
+    "monitor",
+    "scio",
+    "web"
+  ],
+  "author": "Matt Carter <m@ttcarter.com>",
+  "license": "GPLv2",
+  "dependencies": {
+    "superagent": "^1.2.0"
+  }
+}
