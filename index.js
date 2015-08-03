@@ -16,11 +16,6 @@ module.exports = {
 					default: 'GET',
 				},
 				{
-					id: 'timeout',
-					type: 'timeout',
-					default: 30 * 1000,
-				},
-				{
 					id: 'headers',
 					type: 'object',
 					description: 'HTTP headers that should be sent along with the request',
@@ -34,6 +29,16 @@ module.exports = {
 					id: 'body',
 					type: 'object',
 					description: 'POST query parameters',
+				},
+				{
+					id: 'timeoutWarning',
+					type: 'duration',
+					default: 15 * 1000,
+				},
+				{
+					id: 'timeoutDanger',
+					type: 'duration',
+					default: 30 * 1000,
 				},
 			],
 			callback: function(next, service) {
@@ -57,14 +62,33 @@ module.exports = {
 
 				if (service.options.body) req.send(service.options.body);
 
-				if (service.options.timeout) req.timeout(service.options.timeout);
+				if (service.options.timeout) req.timeout(service.options.timeoutDanger);
+
+				var startTime = Date.now();
 
 				req.end(function(err, res) {
 					if (err) return next(err);
 					if (res.statusCode != 200) return next("Non OK status code: " + res.statusCode + ' - ' + res.text);
 					if (res.body.err) return next(res.body.err);
 
-					next(null, 'ok');
+					var totalTime = Date.now() - startTime;
+
+					if (totalTime > service.options.timeoutDanger) {
+						return next(null, {
+							status: 'danger',
+							value: totalTime,
+						});
+					} else if (totalTime > service.options.timeoutWarning) {
+						return next(null, {
+							status: 'warning',
+							value: totalTime,
+						});
+					} else {
+						return next(null, {
+							status: 'ok',
+							value: totalTime,
+						});
+					}
 				});
 			},
 		},
